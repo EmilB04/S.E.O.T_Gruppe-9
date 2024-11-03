@@ -7,33 +7,26 @@ import java.time.LocalDate;
 public class GetElectricityPrices {
 
     private static final Logger logger = LoggerFactory.getLogger(GetElectricityPrices.class);
-    private final ElectricityPriceParser parser = new ElectricityPriceParser(); 
-    private final HttpHandler httpHandler = new HttpHandler();
+    private final ElectricityPriceParser parser;
+    private final HttpHandler httpHandler;
+    private final ElectricityPriceUrlBuilder urlBuilder; 
 
-    
-    // Henter strømprisdata fra Api
-    public List<Double> fetchElectricityPrices(String zone) {
-        List<Double> electricityPrices = new ArrayList<>();
+    public GetElectricityPrices(ElectricityPriceParser parser, HttpHandler httpHandler, ElectricityPriceUrlBuilder urlBuilder) {
+        this.parser = parser;
+        this.httpHandler = httpHandler; 
+        this.urlBuilder = urlBuilder; 
+    }
 
-        // Henter strømprisen for dagens dato
-        LocalDate today = LocalDate.now();
-        String year = String.valueOf(today.getYear());
-        String month = String.format("%02d", today.getMonthValue());
-        String day = String.format("%02d", today.getDayOfMonth());
+    public List<ElectricityPriceData> fetchElectricityPrices(String zone) {
+        List<ElectricityPriceData> electricityPrices = new ArrayList<>();
 
-        // Plasserer hovedkoden i en try/except block
         try {
-            // Lager URL og bruker API hentet fra  https://www.hvakosterstrommen.no/strompris-api
-            String electricityUrl = "https://www.hvakosterstrommen.no/api/v1/prices/" + year + "/" + month + "-" + day + "_" + zone + ".json";
-            // Logger hvilken URL som har blitt brukt
+            LocalDate today = LocalDate.now();
+            String electricityUrl = urlBuilder.buildUrl(zone, today);
             logger.info("Henter data fra: {}", electricityUrl);
 
-            // Bruker HttpHandler for å hente JSON data
             String fetchedData = httpHandler.getJSONDataFromUrl(electricityUrl);
-
-            // Bruker parser for å hente strømpriser fra JSON data
             electricityPrices = parser.parse(fetchedData);
-            // Logger antall objekter som har blitt hentet
             logger.info("Hentet: {} objekter", electricityPrices.size());
 
         } catch (Exception e) {
@@ -41,17 +34,26 @@ public class GetElectricityPrices {
             logger.error("Det skjedd en feil under henting av strømpriser: ", e);
         }
 
-        // Returnerer strømpriser i listeform 
         return electricityPrices; 
     }
 
-    // Main metode for teste koden
-    public static void main(String[] args) {
-        GetElectricityPrices electricityPricesFetcher = new GetElectricityPrices();
-        // Kan endre prissone her:
-        List<Double> prices = electricityPricesFetcher.fetchElectricityPrices("NO1");
+     // Main-metode for testing
+     public static void main(String[] args) {
+        // Initialiserer avhengigheter
+        ElectricityPriceParser parser = new ElectricityPriceParser();
+        HttpHandler httpHandler = new HttpHandler();
+        ElectricityPriceUrlBuilder urlBuilder = new ElectricityPriceUrlBuilder();
 
-        // Skriv ut prisene for å se om de er hentet
-        System.out.println(prices);
+        // Oppretter GetElectricityPrices med nødvendige avhengigheter
+        GetElectricityPrices electricityPricesFetcher = new GetElectricityPrices(parser, httpHandler, urlBuilder);
+
+        // Velger hvilken prissone som skal testes
+        String zone = "NO1";
+        List<ElectricityPriceData> prices = electricityPricesFetcher.fetchElectricityPrices(zone);
+
+        // Skriver ut prisene for å se om de ble hentet riktig
+        for (ElectricityPriceData priceData : prices) {
+            System.out.println("Pris: " + priceData.getPrice() + ", Starttid: " + priceData.getTimeStart() + ", Sluttid: " + priceData.getTimeStop());
+        }
     }
 }
