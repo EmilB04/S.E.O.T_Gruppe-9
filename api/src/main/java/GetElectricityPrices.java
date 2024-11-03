@@ -1,23 +1,25 @@
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
-import org.json.JSONArray;
-import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import java.time.LocalDate;
 
 public class GetElectricityPrices {
 
-    // Lager en logger for ekstra informasjon når vi kjører klassen
     private static final Logger logger = LoggerFactory.getLogger(GetElectricityPrices.class);
-    
+    private final ElectricityPriceParser parser = new ElectricityPriceParser(); 
+    private final HttpHandler httpHandler = new HttpHandler();
 
+    
     // Henter strømprisdata fra Api
-    public List<Double> gettingElectricityPrices(String year, String month, String day, String zone) {
+    public List<Double> fetchElectricityPrices(String zone) {
         List<Double> electricityPrices = new ArrayList<>();
+
+        // Henter strømprisen for dagens dato
+        LocalDate today = LocalDate.now();
+        String year = String.valueOf(today.getYear());
+        String month = String.format("%02d", today.getMonthValue());
+        String day = String.format("%02d", today.getDayOfMonth());
 
         // Plasserer hovedkoden i en try/except block
         try {
@@ -25,43 +27,14 @@ public class GetElectricityPrices {
             String electricityUrl = "https://www.hvakosterstrommen.no/api/v1/prices/" + year + "/" + month + "-" + day + "_" + zone + ".json";
             // Logger hvilken URL som har blitt brukt
             logger.info("Henter data fra: {}", electricityUrl);
-            URL url = new URL(electricityUrl);
 
-            // Åpner tilkoblingen til serveren via API
-            HttpURLConnection connection = (HttpURLConnection) url.openConnection(); 
-            connection.setRequestMethod("GET");
+            // Bruker HttpHandler for å hente JSON data
+            String fetchedData = httpHandler.getJSONDataFromUrl(electricityUrl);
 
-            // Leser API responsen
-            BufferedReader in = new BufferedReader(new InputStreamReader(connection.getInputStream()));
-            String infoLine;
-            // Samler alle linjene/data i en string builder
-            StringBuilder data = new StringBuilder();
-
-            // Hvis infoLine ikke er tom appender data infoLine
-            while ((infoLine = in.readLine()) != null) {
-                data.append(infoLine);
-            }
-
-            in.close();
-
-            // Kobler fra serveren 
-            connection.disconnect();
-
-            // Parse JSON data ved å bruke toString();
-            JSONArray jsonArray = new JSONArray(data.toString());
+            // Bruker parser for å hente strømpriser fra JSON data
+            electricityPrices = parser.parse(fetchedData);
             // Logger antall objekter som har blitt hentet
-            logger.info("Hentet: {} objekter", jsonArray.length());
-
-            // Bruker en for loop for å iterere gjennom arrayet for å hente data
-            for (int i =0; i < jsonArray.length(); i++) {
-                JSONObject electricityPriceObject = jsonArray.getJSONObject(i);
-
-                // Henter ut strømpris per time
-                double price = electricityPriceObject.getDouble("NOK_per_kWh");
-
-                // Legger til pris i electricityPrices
-                electricityPrices.add(price);
-            }
+            logger.info("Hentet: {} objekter", electricityPrices.size());
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -75,7 +48,8 @@ public class GetElectricityPrices {
     // Main metode for teste koden
     public static void main(String[] args) {
         GetElectricityPrices electricityPricesFetcher = new GetElectricityPrices();
-        List<Double> prices = electricityPricesFetcher.gettingElectricityPrices("2024", "10", "26", "NO1");
+        // Kan endre prissone her:
+        List<Double> prices = electricityPricesFetcher.fetchElectricityPrices("NO1");
 
         // Skriv ut prisene for å se om de er hentet
         System.out.println(prices);
