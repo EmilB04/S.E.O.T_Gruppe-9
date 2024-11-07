@@ -1,3 +1,8 @@
+/**
+ * Represents electricity price data for a specific time interval.
+ * 
+ * The class encapsulates data about electricity price like price per kWh, start and end time of a specific time frame.
+ */
 public class ElectricityPriceData {
 
     private double price; 

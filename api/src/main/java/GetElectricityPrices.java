@@ -4,6 +4,18 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.time.LocalDate;
 
+/**
+ * Retrieves electricity prices for a country zone via HTTP and parses the data
+ * 
+ * The class use "ElectricityPriceParser", "ElectricityPriceUrlBuilder" and "HttpHandler" to get and
+ * process electricity prices for a given zone.
+ * 
+ * Example usage:
+ * <pre>
+ * GetElectricityPrices electricityPricesFetcher = new GetElectricityPrices(parser, httpHandler, urlBuilder);
+ * List<ElectricityPriceData> prices = electricityPricesFetcher.fetchElectricityPrices("NO1");
+ * </pre> 
+ */
 public class GetElectricityPrices {
 
     private static final Logger logger = LoggerFactory.getLogger(GetElectricityPrices.class);
@@ -16,7 +28,13 @@ public class GetElectricityPrices {
         this.httpHandler = httpHandler; 
         this.urlBuilder = urlBuilder; 
     }
-
+    /**
+     * Retrieves electricity prices for a specified zone
+     * 
+     * @param zone Price zone for a given zone in the country
+     * @return A List of "ElectricityPriceData" objects for a specified zone
+     * @throws Exception if an error occurs during data retrieval or parsing.
+     */
     public List<ElectricityPriceData> fetchElectricityPrices(String zone) {
         List<ElectricityPriceData> electricityPrices = new ArrayList<>();
 
@@ -31,7 +49,7 @@ public class GetElectricityPrices {
 
         } catch (Exception e) {
             e.printStackTrace();
-            logger.error("Det skjedd en feil under henting av strømpriser: ", e);
+            logger.error("Det skjedde en feil under henting av strømpriser: ", e);
         }
 
         return electricityPrices; 
@@ -48,6 +66,11 @@ public class GetElectricityPrices {
         GetElectricityPrices electricityPricesFetcher = new GetElectricityPrices(parser, httpHandler, urlBuilder);
 
         // Velger hvilken prissone som skal testes
+        //NO1 = Oslo / Øst-Norge
+        //NO2 = Kristiansand / Sør-Norge
+        //NO3 = Trondheim / Midt-Norge
+        //NO4 = Tromsø / Nord-Norge
+        //NO5 = Bergen / Vest-Norge
         String zone = "NO1";
         List<ElectricityPriceData> prices = electricityPricesFetcher.fetchElectricityPrices(zone);
 

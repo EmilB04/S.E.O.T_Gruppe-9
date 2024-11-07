@@ -25,7 +25,7 @@ public class ElectricityPriceCalculator {
      */
     public double calculateAveragePrice(List<ElectricityPriceData> prices) {
         if (prices.isEmpty()) {
-            throw new IllegalArgumentException("Kunne ikke kalkulere gjennomsnittspris da listen er tom. Undersøk inputlisten");
+            throw new IllegalArgumentException("Could not calculate the average price as the list is empty. Please check the input list");
         }
 
         double sum = 0; 
@@ -48,7 +48,7 @@ public class ElectricityPriceCalculator {
      */ 
     public double calculateHighestPrice(List<ElectricityPriceData> prices) {
         if (prices.isEmpty()) {
-            throw new IllegalArgumentException("Kunne ikke kalkulere høyest pris da listen er tom. Undersøk inputlisten");
+            throw new IllegalArgumentException("Could not calculate the average price as the list is empty. Please check the input list");
         }
 
         double highest = Double.MIN_VALUE; 
@@ -72,7 +72,7 @@ public class ElectricityPriceCalculator {
      */
     public double calculateLowestPrice(List <ElectricityPriceData> prices) {
         if (prices.isEmpty()) {
-            throw new IllegalArgumentException("Kunne ikke kalkulere laveste pris da listen er tom. Undersøk inputlisten");
+            throw new IllegalArgumentException("Could not calculate the average price as the list is empty. Please check the input list");
         }
 
         double lowest = Double.MAX_VALUE;

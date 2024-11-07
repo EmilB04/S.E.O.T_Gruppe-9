@@ -5,36 +5,48 @@ import java.net.URL;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * Handles HTTP requests to get JSON data from a URL
+ * 
+ * The class sends GET requests to a URLs, retrieving JSON-data and returns the data as a String.
+ * 
+ * Example usage:
+ * <pre>
+ * HttpHandler httpHandler = HttpHandler();
+ * String jsonData = httpHandler.getJSONDataFromUrl("exampleURL");
+ * </pre>
+ */
 public class HttpHandler {
 
     private static final Logger logger = LoggerFactory.getLogger(HttpHandler.class);
 
-    // Metode som henter JSON-data fra en URL
+    /**
+     * Retrieves JSON-data from a URL
+     * 
+     * @param urlInput the URL for the API
+     * @return JSON data as a String
+     * @throws IOException if a network error occurs
+     */
     public String getJSONDataFromUrl (String urlInput){
-        // Lager en stringbuilder for å samle alle linjene fra API
+
         StringBuilder data = new StringBuilder(); 
 
         try {
             URL url = new URL(urlInput); 
-            // Åpner tilkoblingen til serveren via API
             HttpURLConnection connection = (HttpURLConnection) url.openConnection(); 
             connection.setRequestMethod("GET");
 
-            // Logger hvilken url som har blitt brukt 
             logger.info("Koblet til: {}", urlInput);
 
-            // Leser API-responsen
             BufferedReader in = new BufferedReader(new InputStreamReader(connection.getInputStream()));
             String infoLine;
 
-             // Hvis infoLine ikke er tom appender data infoLine
              while ((infoLine = in.readLine()) != null) {
                 data.append(infoLine);
             }
 
             in.close();
-
-            // Kobler fra serveren 
+ 
             connection.disconnect();
 
             logger.info("Hentet data fra siden"); 
