@@ -1,17 +1,42 @@
 package com.varsling.modules;
 
-import com.google.firebase.messaging.FirebaseMessaging;
-import com.google.firebase.messaging.Message;
 import com.google.firebase.messaging.Notification;
+import com.google.firebase.messaging.Message;
+import com.google.firebase.messaging.FirebaseMessaging;
 
 public class PushNotifikasjonSender {
 
+    private NotifikasjonService notifikasjonService;
+
+    public PushNotifikasjonSender() {
+        this.notifikasjonService = new NotifikasjonService();
+    }
+
     /**
-     * Metode for å sende en notifikasjon til en spesifikk enhet ved bruk av et Notifikasjon-objekt.
-     * Metoden tar inn et Notifikasjon-objekt som inneholder enhetens token, tittel og tekst.
-     * Hvis det oppstår en feil under sending av notifikasjonen vil det skrives ut en feilmelding.
+     * Sender en notifikasjon basert på strømpris, hvis perameterene er oppfylt riktig.
      */
-    public static void sendNotifikasjon(Notifikasjon notifikasjon) {
+    public void sendStromprisNotifikasjon(boolean tillatelse, double strompris) {
+        Notifikasjon notifikasjon = notifikasjonService.getStromprisNotifikasjon(tillatelse, strompris);
+        if (notifikasjon != null) {
+            sendNotifikasjonTilFirebase(notifikasjon);
+        }
+    }
+
+    /**
+     * Sender en notifikasjon basert på strømnivået på bilen, 
+     * hvis perameterene er oppfylt riktig.
+     */
+    public void sendStromnivaNotifikasjon(String lokasjon, int stromniva) {
+        Notifikasjon notifikasjon = notifikasjonService.getStromnivaNotifikasjon(lokasjon, stromniva);
+        if (notifikasjon != null) {
+            sendNotifikasjonTilFirebase(notifikasjon);
+        }
+    }
+
+    /**
+     * Privat metode for å sende en notifikasjon til Firebase.
+     */
+    private void sendNotifikasjonTilFirebase(Notifikasjon notifikasjon) {
         Notification notification = Notification.builder()
                 .setTitle(notifikasjon.getTitle())
                 .setBody(notifikasjon.getBody())
@@ -26,8 +51,7 @@ public class PushNotifikasjonSender {
             FirebaseMessaging.getInstance().send(message);
             //Utskriften er teknisk sett ikke nødvendig, kan fjernes etter testing
             System.out.println("Notifikasjonen ble sendt");
-        } 
-        catch (Exception e) {
+        } catch (Exception e) {
             System.out.println("Det oppstod en feil under sending av notifikasjonen");
             e.printStackTrace();
         }
