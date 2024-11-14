@@ -1,7 +1,6 @@
 package com.varsling;
 
 import com.varsling.modules.FirebaseInitializer;
-import com.varsling.modules.Notifikasjon;
 import com.varsling.modules.PushNotifikasjonSender;
 
 public class Main {
@@ -9,10 +8,13 @@ public class Main {
         // Initialiser Firebase
         FirebaseInitializer.initializeFirebaseApp();
 
-        // Opprett en notifikasjon
-        Notifikasjon notifikasjon = new Notifikasjon("YOUR_DEVICE_FCM_TOKEN", "Test Notifikasjon", "Dette er en test.");
+        // Opprett PushNotifikasjonSender
+        PushNotifikasjonSender notifikasjonSender = new PushNotifikasjonSender();
 
-        // Send notifikasjonen
-        PushNotifikasjonSender.sendNotifikasjon(notifikasjon);
+        // Send en notifikasjon basert på strømpris (for eksempel)
+        double strompris = 0.4; // Eksempelverdi for strømpris
+        boolean tillatelse = true; // Anta at tillatelse er gitt
+
+        notifikasjonSender.sendStromprisNotifikasjon(tillatelse, strompris);
     }
 }
